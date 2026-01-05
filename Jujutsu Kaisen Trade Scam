@@ -1,0 +1,181 @@
+-- NexusHub | Jujutsu Kaisen Edition
+-- Loading Screen + Porcentaje + Panel Movible
+
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local TS = game:GetService("TweenService")
+
+local player = Players.LocalPlayer
+
+-- 🔥 IMAGEN JUJUTSU KAISEN
+local GOJO_IMAGE = "rbxassetid://125707209610871"
+
+-- =====================
+-- SCREEN GUI
+-- =====================
+local gui = Instance.new("ScreenGui")
+gui.Name = "Nexus_Jujutsu"
+gui.ResetOnSpawn = false
+gui.IgnoreGuiInset = true
+gui.Parent = player:WaitForChild("PlayerGui")
+
+-- =====================
+-- LOADING SCREEN
+-- =====================
+local loading = Instance.new("Frame", gui)
+loading.Size = UDim2.new(1,0,1,0)
+loading.BackgroundColor3 = Color3.fromRGB(5,5,10)
+loading.BorderSizePixel = 0
+
+local image = Instance.new("ImageLabel", loading)
+image.Size = UDim2.new(1,0,1,0)
+image.BackgroundTransparency = 1
+image.Image = GOJO_IMAGE
+image.ScaleType = Enum.ScaleType.Crop
+image.ImageTransparency = 0.2
+
+local title = Instance.new("TextLabel", loading)
+title.Size = UDim2.new(1,0,0,60)
+title.Position = UDim2.new(0,0,0.42,0)
+title.BackgroundTransparency = 1
+title.Text = "Jujutsu Kaisen loading"
+title.Font = Enum.Font.GothamBlack
+title.TextSize = 36
+title.TextColor3 = Color3.fromRGB(0,180,255)
+
+local percent = Instance.new("TextLabel", loading)
+percent.Size = UDim2.new(1,0,0,30)
+percent.Position = UDim2.new(0,0,0.52,0)
+percent.BackgroundTransparency = 1
+percent.Text = "0%"
+percent.Font = Enum.Font.GothamBold
+percent.TextSize = 16
+percent.TextColor3 = Color3.fromRGB(220,220,220)
+
+-- Barra
+local barBG = Instance.new("Frame", loading)
+barBG.Size = UDim2.new(0.4,0,0,8)
+barBG.Position = UDim2.new(0.3,0,0.58,0)
+barBG.BackgroundColor3 = Color3.fromRGB(40,40,50)
+Instance.new("UICorner", barBG).CornerRadius = UDim.new(1,0)
+
+local bar = Instance.new("Frame", barBG)
+bar.Size = UDim2.new(0,0,1,0)
+bar.BackgroundColor3 = Color3.fromRGB(0,170,255)
+Instance.new("UICorner", bar).CornerRadius = UDim.new(1,0)
+
+-- Animación loading
+task.spawn(function()
+	for i = 1,100 do
+		bar.Size = UDim2.new(i/100,0,1,0)
+		percent.Text = i .. "%"
+		task.wait(0.03)
+	end
+	loading:Destroy()
+end)
+
+-- =====================
+-- MAIN PANEL
+-- =====================
+local main = Instance.new("Frame", gui)
+main.Size = UDim2.new(0,200,0,160)
+main.Position = UDim2.new(0.5,-100,0.5,-80)
+main.BackgroundColor3 = Color3.fromRGB(15,15,20)
+main.BorderSizePixel = 0
+main.Visible = false
+Instance.new("UICorner", main).CornerRadius = UDim.new(0,10)
+
+local stroke = Instance.new("UIStroke", main)
+stroke.Thickness = 1.5
+stroke.Color = Color3.fromRGB(0,170,255)
+
+local label = Instance.new("TextLabel", main)
+label.Size = UDim2.new(1,0,0,30)
+label.BackgroundTransparency = 1
+label.Text = "Jujutsu Kaisen V6.5"
+label.Font = Enum.Font.GothamBold
+label.TextSize = 16
+label.TextColor3 = Color3.fromRGB(0,200,255)
+
+-- Toggle
+local function makeToggle(text, y)
+	local base = Instance.new("Frame", main)
+	base.Size = UDim2.new(0.9,0,0,30)
+	base.Position = UDim2.new(0.5,0,0,y)
+	base.AnchorPoint = Vector2.new(0.5,0)
+	base.BackgroundColor3 = Color3.fromRGB(25,25,35)
+	Instance.new("UICorner", base).CornerRadius = UDim.new(0,6)
+
+	local txt = Instance.new("TextLabel", base)
+	txt.Size = UDim2.new(1,-55,1,0)
+	txt.Position = UDim2.new(0,10,0,0)
+	txt.BackgroundTransparency = 1
+	txt.Text = text
+	txt.Font = Enum.Font.Gotham
+	txt.TextSize = 14
+	txt.TextColor3 = Color3.fromRGB(230,230,230)
+	txt.TextXAlignment = Enum.TextXAlignment.Left
+
+	local btn = Instance.new("Frame", base)
+	btn.Size = UDim2.new(0,40,0,20)
+	btn.Position = UDim2.new(1,-45,0.5,-10)
+	btn.BackgroundColor3 = Color3.fromRGB(60,60,70)
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(1,0)
+
+	local dot = Instance.new("Frame", btn)
+	dot.Size = UDim2.new(0,16,0,16)
+	dot.Position = UDim2.new(0,2,0.5,-8)
+	dot.BackgroundColor3 = Color3.fromRGB(255,255,255)
+	Instance.new("UICorner", dot).CornerRadius = UDim.new(1,0)
+
+	local click = Instance.new("TextButton", btn)
+	click.Size = UDim2.new(1,0,1,0)
+	click.BackgroundTransparency = 1
+	click.Text = ""
+
+	local on = false
+	click.MouseButton1Click:Connect(function()
+		on = not on
+		TS:Create(btn, TweenInfo.new(0.2), {
+			BackgroundColor3 = on and Color3.fromRGB(0,170,255) or Color3.fromRGB(60,60,70)
+		}):Play()
+		TS:Create(dot, TweenInfo.new(0.2), {
+			Position = on and UDim2.new(1,-18,0.5,-8) or UDim2.new(0,2,0.5,-8)
+		}):Play()
+	end)
+end
+
+makeToggle("Freeze Trade", 40)
+makeToggle("Auto Accept", 80)
+makeToggle("Auto Add Items", 120)
+
+-- Mostrar panel después del loading
+task.delay(3.2, function()
+	main.Visible = true
+end)
+
+-- 🖐️ Drag (PC + móvil)
+local dragging, dragStart, startPos
+main.InputBegan:Connect(function(i)
+	if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = i.Position
+		startPos = main.Position
+	end
+end)
+
+UIS.InputChanged:Connect(function(i)
+	if dragging and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
+		local delta = i.Position - dragStart
+		main.Position = UDim2.new(
+			startPos.X.Scale, startPos.X.Offset + delta.X,
+			startPos.Y.Scale, startPos.Y.Offset + delta.Y
+		)
+	end
+end)
+
+UIS.InputEnded:Connect(function()
+	dragging = false
+end)
+
+print("✅ NexusHub Jujutsu Kaisen Loaded")
