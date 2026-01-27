@@ -1,0 +1,142 @@
+local Players = game:GetService("Players")
+local UIS = game:GetService("UserInputService")
+local TS = game:GetService("TweenService")
+
+local gui = Instance.new("ScreenGui")
+gui.ResetOnSpawn = false
+gui.Name = "CoolUI"
+gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+
+-- PANEL PRINCIPAL (GLASS)
+local main = Instance.new("Frame")
+main.Size = UDim2.new(0, 220, 0, 180)
+main.Position = UDim2.new(0.5, -110, 0.5, -90)
+main.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+main.BackgroundTransparency = 0.25
+main.BorderSizePixel = 0
+main.Parent = gui
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 12)
+
+-- BORDE RGB ANIMADO
+local stroke = Instance.new("UIStroke", main)
+stroke.Thickness = 2
+
+task.spawn(function()
+	while true do
+		TS:Create(stroke, TweenInfo.new(0.8), {Color = Color3.fromRGB(0,255,120)}):Play()
+		task.wait(0.8)
+		TS:Create(stroke, TweenInfo.new(0.8), {Color = Color3.fromRGB(0,180,255)}):Play()
+		task.wait(0.8)
+		TS:Create(stroke, TweenInfo.new(0.8), {Color = Color3.fromRGB(140,0,255)}):Play()
+		task.wait(0.8)
+	end
+end)
+
+-- SOMBRA
+local shadow = Instance.new("ImageLabel")
+shadow.Size = UDim2.new(1, 40, 1, 40)
+shadow.Position = UDim2.new(0, -20, 0, -20)
+shadow.BackgroundTransparency = 1
+shadow.Image = "rbxassetid://297774371"
+shadow.ImageTransparency = 0.7
+shadow.Parent = main
+shadow.ZIndex = 0
+main.ZIndex = 1
+
+-- TITULO
+local label = Instance.new("TextLabel")
+label.Size = UDim2.new(1, 0, 0, 30)
+label.BackgroundTransparency = 1
+label.Text = "Nexus MM2 control panel"
+label.TextColor3 = Color3.fromRGB(200, 255, 200)
+label.TextSize = 16
+label.Font = Enum.Font.GothamBold
+label.Parent = main
+
+-- FUNCIÓN TOGGLE (SOLO VISUAL)
+local function makeToggle(text, yPos)
+	local base = Instance.new("Frame", main)
+	base.Size = UDim2.new(0.9, 0, 0, 32)
+	base.Position = UDim2.new(0.5, 0, 0, yPos)
+	base.AnchorPoint = Vector2.new(0.5, 0)
+	base.BackgroundColor3 = Color3.fromRGB(30, 35, 40)
+	base.BackgroundTransparency = 0.2
+	base.BorderSizePixel = 0
+	Instance.new("UICorner", base).CornerRadius = UDim.new(0, 6)
+
+	local txt = Instance.new("TextLabel", base)
+	txt.Size = UDim2.new(1, -55, 1, 0)
+	txt.Position = UDim2.new(0, 10, 0, 0)
+	txt.BackgroundTransparency = 1
+	txt.Text = text
+	txt.TextColor3 = Color3.fromRGB(220, 255, 220)
+	txt.TextSize = 14
+	txt.Font = Enum.Font.Gotham
+	txt.TextXAlignment = Enum.TextXAlignment.Left
+
+	local btn = Instance.new("TextButton", base)
+	btn.Size = UDim2.new(0, 40, 0, 20)
+	btn.Position = UDim2.new(1, -45, 0.5, -10)
+	btn.BackgroundColor3 = Color3.fromRGB(60, 70, 80)
+	btn.Text = ""
+	btn.BorderSizePixel = 0
+	Instance.new("UICorner", btn).CornerRadius = UDim.new(1, 0)
+
+	local dot = Instance.new("Frame", btn)
+	dot.Size = UDim2.new(0, 16, 0, 16)
+	dot.Position = UDim2.new(0, 2, 0.5, -8)
+	dot.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+	dot.BorderSizePixel = 0
+	Instance.new("UICorner", dot).CornerRadius = UDim.new(1, 0)
+
+	local on = false
+	btn.MouseButton1Click:Connect(function()
+		on = not on
+		TS:Create(btn, TweenInfo.new(0.2), {
+			BackgroundColor3 = on and Color3.fromRGB(0,255,120) or Color3.fromRGB(60,70,80)
+		}):Play()
+		TS:Create(dot, TweenInfo.new(0.2), {
+			Position = on and UDim2.new(1,-18,0.5,-8) or UDim2.new(0,2,0.5,-8)
+		}):Play()
+	end)
+end
+
+-- OPCIONES (SOLO DISEÑO)
+makeToggle("Freeze Trade", 45)
+makeToggle("Auto Accept", 85)
+makeToggle("Auto Item", 125)
+
+-- SISTEMA MOVIBLE
+local dragging, dragInput, dragStart, startPos
+
+local function update(input)
+	local delta = input.Position - dragStart
+	main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+		startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+main.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = main.Position
+
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+main.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+		dragInput = input
+	end
+end)
+
+UIS.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		update(input)
+	end
+end)
